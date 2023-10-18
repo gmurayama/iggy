@@ -184,8 +184,17 @@ impl Logging {
         let base_directory = PathBuf::from(base_directory);
         let logs_subdirectory = PathBuf::from(config.path.clone());
         let logs_path = base_directory.join(logs_subdirectory.clone());
-        let file_appender =
-            tracing_appender::rolling::hourly(logs_path.clone(), IGGY_LOG_FILE_PREFIX);
+        let logs_basename = logs_path.join(IGGY_LOG_FILE_PREFIX);
+        let max_size_kb = config.max_size_megabytes * 1024 * 1024;
+        let max_files = (config.retention_days * 24).max(1) as usize;
+        let file_appender = rolling_file::BasicRollingFileAppender::new(
+            logs_basename.clone(),
+            rolling_file::RollingConditionBasic::new()
+                .hourly()
+                .max_size(max_size_kb),
+            max_files,
+        )
+        .unwrap();
         let (mut non_blocking_file, file_guard) = tracing_appender::non_blocking(file_appender);
 
         self.dump_to_file(&mut non_blocking_file);
