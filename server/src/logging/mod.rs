@@ -11,6 +11,8 @@ use tracing_subscriber::{
     filter::LevelFilter, fmt, fmt::MakeWriter, prelude::*, reload, reload::Handle, Layer, Registry,
 };
 
+mod logger;
+
 const IGGY_LOG_FILE_PREFIX: &str = "iggy-server.log";
 
 // Writer that does nothing
